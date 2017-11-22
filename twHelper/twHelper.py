@@ -8,6 +8,7 @@ from threading import Thread
 import wx
 import wx.xrc
 import twHelperGUI
+import traceback
 
 
 class twHelper:
@@ -68,7 +69,7 @@ class twHelper:
 
 	def farmRankProcessList(self, list, order = False, descending = True, bbcode = True, title = "ERROR"):
 		if order:
-			list = sorted(list, key=lambda x: x[2], reverse = descending)
+			list = sorted(list, key=lambda x: x[1], reverse = descending)
 		if True:
 			string = '[table]\n[**]Name[||]Rank[||]' + title + '[||]Date[/**]\n'
 			for i in range(0,len(list)):
@@ -257,10 +258,13 @@ class twHelper:
 	def getWorldInfo(self):
 		"""Gets map information from the Tribalwars website."""
 
+		# get the world name from the user, temporary implementation
 		self.worldName = input("Which world are we looking at? (en93, en97, etc.): ")
 
+		# get the appdata directory
 		self.storageDirectory = os.getenv('APPDATA') + "/twHelper/"
 		if not os.path.exists(self.storageDirectory):
+		# if there is no twHelper directory in appdata/roaming, make one
 			os.makedirs(self.storageDirectory)
 
 		# check how long since update
@@ -288,7 +292,7 @@ class twHelper:
 
 
 #inherit from the MainFrame created in wxFowmBuilder and create CalcFrame
-class CalcFrame(twHelperGUI.mainFrame):
+class twHelperFrame(twHelperGUI.mainFrame):
 	#constructor
 	def __init__(self,parent):
 	#initialize parent class
@@ -305,10 +309,14 @@ class CalcFrame(twHelperGUI.mainFrame):
 			# start a new thread with 
 			Thread(target = self.fillMemberList).start()
 		except Exception as e:
+			traceback.print_exc()
 			print('error')
 
 	def fillMemberList(self):
+		# get the input type
 		typ = self.farmType.GetString(self.farmType.GetSelection())
+
+		# get desired list ordering
 		order = self.farmOrder.GetString(self.farmOrder.GetSelection())
 		if order == "Ascending" or order == "Descending":
 			descending = False
@@ -317,27 +325,37 @@ class CalcFrame(twHelperGUI.mainFrame):
 			order = True
 		else:
 			order = False
+			descending = False
+
+		# do we want to spit out results with BB codes?
 		check = self.farmBBcode.IsChecked()
-		self.memberList.SetValue(str("Processing the list.  This may take some time."))
-		string = self.farmRankList(self.farmTribeAbbrev.GetValue(),descending = order, type = typ, bbcode = check)
-		self.memberList.SetValue(string)
+
+		# print information to display before we run
+		self.farmMemberList.SetValue(str("Processing data...  this may take some time."))
+
+		# get the ranking list string
+		string = self.farmRankList(self.farmTribeAbbrev.GetValue(), order = order, descending = descending, type = typ, bbcode = check)
+		self.farmMemberList.SetValue(string) # print the list to display
 
 	def farmRankList(self, tribeAbbrev, order = False, descending = True, bbcode = True, type = "Hauls"):
 		'''Get the farm ranks of a tribe.'''
+		# reset values
 		self.plunderList = []
 		self.haulList = []
 		self.plunderListString = ''
 		self.haulListString = ''
-
-		members = self.helper.getTribeMembers(tribeAbbrev)
-		for i in range(0, len(members)):
-			self.twHelperLog.SetValue("[" + str(i + 1) + "/" + str(len(members)) + "]\n")
-			self.helper.getInDayInfo(members[i], type)
-			
-		self.twHelperLog.AppendText("Finished getting info for " + tribeAbbrev)
-		
 		string = ''
 
+		# get the member list
+		members = self.helper.getTribeMembers(tribeAbbrev)
+		for i in range(0, len(members)):
+		# for each tribe member
+			self.twHelperLog.SetValue("[" + str(i + 1) + "/" + str(len(members)) + "]\n") # update the progress value in the log
+			self.helper.getInDayInfo(members[i], type) # get info for member[i]
+			
+		self.twHelperLog.AppendText("Finished getting info for " + tribeAbbrev) # pri nt that we are finished to the log
+		
+		# turn our list of member ranks into a string
 		if type == "Plunders":
 			string = self.helper.farmRankProcessList(self.helper.plunderList, order = order, descending = descending, bbcode = bbcode, title = "Total Plunders")
 		else:
@@ -346,13 +364,12 @@ class CalcFrame(twHelperGUI.mainFrame):
 		return string
 
 if __name__ == '__main__':
-	#mandatory in wx, create an app, False stands for not deteriction stdin/stdout
-	#refer manual for details
+	# initialize app
 	app = wx.App(False)
 
-	##create an object of CalcFrame
-	frame = CalcFrame(None)
-	##show the frame
+	# create an object of CalcFrame
+	frame = twHelperFrame(None)
+	# show the frame
 	frame.Show(True)
-	##start the applications
+	# start the applications
 	app.MainLoop()
