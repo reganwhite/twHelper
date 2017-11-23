@@ -9,6 +9,7 @@
 
 import wx
 import wx.xrc
+import wx.adv
 
 ###########################################################################
 ## Class mainFrame
@@ -17,7 +18,7 @@ import wx.xrc
 class mainFrame ( wx.Frame ):
 	
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"twHelper", pos = wx.DefaultPosition, size = wx.Size( 393,526 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"twHelper", pos = wx.DefaultPosition, size = wx.Size( 393,548 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 		
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		self.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
@@ -148,7 +149,7 @@ class mainFrame ( wx.Frame ):
 		attackingPlayer.Add( bSizer4, 0, wx.EXPAND, 5 )
 		
 		snipeAttackingVillageChoices = []
-		self.snipeAttackingVillage = wx.ListBox( attackingPlayer.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, snipeAttackingVillageChoices, wx.LB_ALWAYS_SB|wx.LB_MULTIPLE|wx.LB_SORT )
+		self.snipeAttackingVillage = wx.ListBox( attackingPlayer.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.Size( -1,80 ), snipeAttackingVillageChoices, wx.LB_ALWAYS_SB|wx.LB_MULTIPLE|wx.LB_SORT )
 		self.snipeAttackingVillage.SetMinSize( wx.Size( 250,80 ) )
 		self.snipeAttackingVillage.SetMaxSize( wx.Size( 250,80 ) )
 		
@@ -216,20 +217,28 @@ class mainFrame ( wx.Frame ):
 		
 		wSizer81 = wx.WrapSizer( wx.HORIZONTAL )
 		
-		self.m_staticText5 = wx.StaticText( self.m_panel2, wx.ID_ANY, u"Arrival Time:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText5 = wx.StaticText( self.m_panel2, wx.ID_ANY, u"Time:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText5.Wrap( -1 )
 		wSizer81.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.snipeArrivalTime = wx.TextCtrl( self.m_panel2, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
-		wSizer81.Add( self.snipeArrivalTime, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.attackArriveDate = wx.adv.DatePickerCtrl( self.m_panel2, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition, wx.DefaultSize, wx.adv.DP_DEFAULT|wx.adv.DP_SPIN )
+		wSizer81.Add( self.attackArriveDate, 0, wx.ALL, 5 )
+		
+		self.attackArriveTime = wx.adv.TimePickerCtrl( self.m_panel2, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition, wx.DefaultSize, wx.adv.TP_DEFAULT )
+		self.attackArriveTime.SetMinSize( wx.Size( 85,-1 ) )
+		
+		wSizer81.Add( self.attackArriveTime, 0, wx.ALL, 5 )
+		
+		self.attackArriveMilliseconds = wx.SpinCtrl( self.m_panel2, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 50,-1 ), wx.SP_ARROW_KEYS, 0, 999, 999 )
+		wSizer81.Add( self.attackArriveMilliseconds, 0, wx.ALL, 5 )
+		
+		
+		bSizer9.Add( wSizer81, 0, wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		self.attackTimerGo = wx.Button( self.m_panel2, wx.ID_ANY, u"Go!", wx.DefaultPosition, wx.Size( -1,-1 ), 0 )
 		self.attackTimerGo.SetMinSize( wx.Size( 65,-1 ) )
 		
-		wSizer81.Add( self.attackTimerGo, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-		
-		
-		bSizer9.Add( wSizer81, 0, wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		bSizer9.Add( self.attackTimerGo, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		wSizer91 = wx.WrapSizer( wx.HORIZONTAL )
 		

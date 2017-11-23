@@ -10,6 +10,7 @@ import wx.xrc
 import twHelperGUI
 import traceback
 
+# self.attackArriveTime = wx.adv.TimePickerCtrl( self.m_panel2, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition, wx.DefaultSize, wx.adv.TP_DEFAULT )
 
 class twHelper:
 	"""Handler"""
@@ -492,8 +493,14 @@ class twHelperMain(twHelperGUI.mainFrame):
 		if self.snipeSpeedNob.IsChecked():
 			self.helper.speeds.append("noble")
 
+
+		attackDate = self.attackArriveDate.GetValue()
+		attackTime = self.attackArriveTime.GetValue()
+		milliseconds = self.attackArriveMilliseconds.GetValue()
+
+		timeString = attackDate.day + "." + attackDate.month + "." + attackDate.year + " " + attackTime.hour + ":" + attackTime.minute + ":" + attackTime.second + "." + milliseconds
 		# get the timing string
-		string = self.helper.getSnipeString2(target, self.snipeArrivalTime.GetValue(), self.snipeBBcode.IsChecked(), self.snipeSort.IsChecked(), sendLocationCoordinates)
+		string = self.helper.getSnipeString2(target, timeString, self.snipeBBcode.IsChecked(), self.snipeSort.IsChecked(), sendLocationCoordinates)
 		self.attackTimerOutput.SetValue(string) # put the timing string in the output window
 
 	# when go is clicked
