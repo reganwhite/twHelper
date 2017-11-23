@@ -497,8 +497,8 @@ class twHelperMain(twHelperGUI.mainFrame):
 		attackDate = self.attackArriveDate.GetValue()
 		attackTime = self.attackArriveTime.GetValue()
 		milliseconds = self.attackArriveMilliseconds.GetValue()
-
-		timeString = attackDate.day + "." + attackDate.month + "." + attackDate.year + " " + attackTime.hour + ":" + attackTime.minute + ":" + attackTime.second + "." + milliseconds
+		timeString = str(attackDate.day) + "." + str(attackDate.month) + "." + str(attackDate.year) + " " + str(attackTime.hour) + ":" + str(attackTime.minute) + ":" + str(attackTime.second) + "." + str(milliseconds)
+		print(timeString)
 		# get the timing string
 		string = self.helper.getSnipeString2(target, timeString, self.snipeBBcode.IsChecked(), self.snipeSort.IsChecked(), sendLocationCoordinates)
 		self.attackTimerOutput.SetValue(string) # put the timing string in the output window
