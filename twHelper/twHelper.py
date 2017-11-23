@@ -377,14 +377,16 @@ class twHelperMain(twHelperGUI.mainFrame):
 			self.snipeIgnoreEvtText = False
 			return
 		currentText = event.GetString()
-		if currentText != "" and len(currentText) >= 4:
+		if currentText != "" and len(currentText) >= 4: # check that the input isnt empty, and is 4 characters or longer
 			found = False
-			for choice in self.helper.playersCol[1]:
-				lowerChoice = choice.lower()
-				if lowerChoice.startswith(currentText.lower()):
+			for choice in self.helper.playersCol[1]: # for all usernames
+				lowerChoice = choice.lower() # case insensitive search
+				if lowerChoice.startswith(currentText.lower()): # case insensitive search
 					# Set the search prediction
 					self.snipeIgnoreEvtText = True
-					self.snipeSearch.SetValue(choice)
+					self.snipeSearch.SetValue(choice) # apply the value to thne current prediction
+
+					# highlight the part of the prediction that we havent typed yet
 					self.snipeSearch.SetInsertionPoint(len(currentText))
 					self.snipeSearch.SetSelection(len(currentText), len(choice))
 
@@ -392,13 +394,15 @@ class twHelperMain(twHelperGUI.mainFrame):
 					self.snipeTribe.SetValue(self.helper.findUserInfo("tribeFromUser",choice))
 
 					# Find Villages
-					userID = self.helper.findUserInfo("idFromUser", currentText)
-					villages = self.helper.findVillage(userID)
-					self.villageListStorage1 = self.helper.rowToVillage(villages)
+					userID = self.helper.findUserInfo("idFromUser", currentText) # get user id of current prediction/choice
+					villages = self.helper.findVillage(userID) # get all villages belonging to the choice
+					self.villageListStorage1 = self.helper.rowToVillage(villages) # get formatted village list
+
+					# process formatted village list so that we only get a pretty string
 					queryVillages = []
 					for i in range(0, len(self.villageListStorage1)):
-						queryVillages.append(self.villageListStorage1[i][2])
-					self.snipeDefendingVillage.SetItems(queryVillages)
+						queryVillages.append(self.villageListStorage1[i][2]) # append the "NAME (XXX|YYY)" string
+					self.snipeDefendingVillage.SetItems(queryVillages) # send to output window
 
 					found = True
 					break
@@ -459,13 +463,38 @@ class twHelperMain(twHelperGUI.mainFrame):
 		Thread(target = self.attackTimerThread).start()
 
 	def attackTimerThread(self):
+		# get the target village
 		target = self.villageListStorage1[self.snipeDefendingVillage.GetSelection()][1]
+
+		# get the destination villages
 		sendLocations = self.snipeAttackingVillage.GetSelections()
 		sendLocationCoordinates = []
 		for i in sendLocations:
 			sendLocationCoordinates.append(self.villageListStorage2[i])
+
+		# get the unit speeds
+		# yes, this is very messy
+		self.helper.speeds = []
+		if self.snipeSpeedPal.IsChecked():
+			self.helper.speeds.append("pal")
+		if self.snipeSpeedSc.IsChecked():
+			self.helper.speeds.append("sc")
+		if self.snipeSpeedLc.IsChecked():
+			self.helper.speeds.append("lc")
+		if self.snipeSpeedHc.IsChecked():
+			self.helper.speeds.append("hc")
+		if self.snipeSpeedSp.IsChecked():
+			self.helper.speeds.append("sp")
+		if self.snipeSpeedSw.IsChecked():
+			self.helper.speeds.append("sw")
+		if self.snipeSpeedRam.IsChecked():
+			self.helper.speeds.append("ram")
+		if self.snipeSpeedNob.IsChecked():
+			self.helper.speeds.append("noble")
+
+		# get the timing string
 		string = self.helper.getSnipeString2(target, self.snipeArrivalTime.GetValue(), self.snipeBBcode.IsChecked(), self.snipeSort.IsChecked(), sendLocationCoordinates)
-		self.attackTimerOutput.SetValue(string)
+		self.attackTimerOutput.SetValue(string) # put the timing string in the output window
 
 	# when go is clicked
 	def farmSearchUpdate(self,event):
