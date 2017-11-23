@@ -229,7 +229,7 @@ class mainFrame ( wx.Frame ):
 		
 		wSizer81.Add( self.attackArriveTime, 0, wx.ALL, 5 )
 		
-		self.attackArriveMilliseconds = wx.SpinCtrl( self.m_panel2, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 50,-1 ), wx.SP_ARROW_KEYS, 0, 999, 999 )
+		self.attackArriveMilliseconds = wx.SpinCtrl( self.m_panel2, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 50,-1 ), wx.SP_ARROW_KEYS, 0, 999, 0 )
 		wSizer81.Add( self.attackArriveMilliseconds, 0, wx.ALL, 5 )
 		
 		
