@@ -69,7 +69,7 @@ class twHelper:
 
 	def farmRankProcessList(self, list, order = False, descending = True, bbcode = True, title = "ERROR"):
 		if order:
-			list = sorted(list, key=lambda x: x[1], reverse = descending)
+			list = sorted(list, key=lambda x: float(x[1]), reverse = descending)
 		if True:
 			string = '[table]\n[**]Name[||]Rank[||]' + title + '[||]Date[/**]\n'
 			for i in range(0,len(list)):
@@ -148,6 +148,41 @@ class twHelper:
 			for i in range(0,len(sendList)):
 				print(sendListSorted[i][1])
 
+	def getSnipeString2(self, target, landTime, bbcode, sortList, temp):
+		landTimeUnix = self.stringToUnix(landTime)
+		print(landTimeUnix)
+		#if bbcode:
+		#	print("[ally]" + player + "[/ally] hitting [village]" + target + "[/village] at " + landTime)
+		#else:
+		#	print(player + " hitting " + target + " at " + landTime)
+
+		sendList = []
+
+		for i in range(0, len(temp)):
+			distance = self.distanceCalc(target, temp[i][1])
+			for j in range(0, len(self.speeds)):
+				timeTo = self.timeToVillage(distance, self.speeds[j])
+				timeLaunchString = self.unixToString(landTimeUnix - timeTo)
+				if bbcode:
+					unitName = str(self.speeds[j])
+					sA = timeLaunchString
+					sB = "Launch " + unitName.ljust(3) + " from [village]" + temp[i][1] + "[/village] at " + timeLaunchString
+					sendList.append([sA, sB])
+
+				else:
+					sendList.append("Launch " + self.speeds[j] + " from " + temp[i][1] + " at " + timeLaunchString)
+
+		outstring = ""
+		if sortList:
+			sendListSorted = sorted(sendList, key=lambda x: x[0])
+			for i in range(0,len(sendListSorted)):
+				outstring = outstring + sendListSorted[i][1] + "\n"
+		else:
+			for i in range(0,len(sendList)):
+				outstring = outstring + sendList[i][1] + "\n"
+
+		return outstring
+
 
 	def rowToVillage(self, villages):
 		"""Take a list of village parameters and give us back some more important things"""
@@ -179,7 +214,6 @@ class twHelper:
 		t_string = str(datetime.datetime.fromtimestamp(unixTime).strftime('%d.%m.%Y %H:%M:%S.%f'))
 		
 		return t_string[:-3]
-		
 
 	def distanceCalc(self, a, b):
 		"""Find the distance between two villages."""
@@ -200,11 +234,36 @@ class twHelper:
 		"""Calculate the time to travel a distance given a unit speed."""
 		return float(round(distance * self.units[unit] * 60 * self.worldspeed * self.unitspeed))
 
-	def findUserID(self, username):
+	def findUserInfo(self, type, query):
 		"""Find the userID of a username."""
-		index = [i for i, names in enumerate(self.playersCol[1]) if username in names]
+		if type == "idFromUser":
+			index = [i for i, names in enumerate(self.playersCol[1]) if query.lower() in names.lower()]
+			return self.playersCol[0][index[0]]
+		elif type == "tribeFromUser":
+			print(query.lower())
+			index = [i for i, names in enumerate(self.playersCol[1]) if query.lower() in names.lower()]
+			tribe = [i for i, id in enumerate(self.tribesCol[0]) if str(self.playersCol[2][index[0]]) in str(id)]
+			print(self.playersCol[0][index[0]])
+			print(tribe)
+			if tribe == []:
+				return ""
+			else:
+				return self.tribesCol[2][tribe[0]]
+
+	def findPlayerTribe(self, userID):
+		"""Find the userID of a username."""
+		index = [i for i, names in enumerate(self.tribesCol[1]) if username in names]
 
 		return self.playersCol[0][index[0]]
+
+	def searchUserID(self, username):
+		"""Find the userID of a username."""
+		index = [i for i, names in enumerate(self.playersCol[1]) if username in names]
+		response = []
+		for i in range(0,len(index)):
+			response.append(self.playersCol[1][index[i]])
+
+		return response
 
 	def findVillage(self, userID):
 		"""Find the userID of a username."""
@@ -259,7 +318,7 @@ class twHelper:
 		"""Gets map information from the Tribalwars website."""
 
 		# get the world name from the user, temporary implementation
-		self.worldName = input("Which world are we looking at? (en93, en97, etc.): ")
+		#self.worldName = input("Which world are we looking at? (en93, en97, etc.): ")
 
 		# get the appdata directory
 		self.storageDirectory = os.getenv('APPDATA') + "/twHelper/"
@@ -292,7 +351,7 @@ class twHelper:
 
 
 #inherit from the MainFrame created in wxFowmBuilder and create CalcFrame
-class twHelperFrame(twHelperGUI.mainFrame):
+class twHelperMain(twHelperGUI.mainFrame):
 	#constructor
 	def __init__(self,parent):
 	#initialize parent class
@@ -302,6 +361,136 @@ class twHelperFrame(twHelperGUI.mainFrame):
 		self.haulList = []
 		self.plunderListString = ''
 		self.haulListString = ''
+
+		# ignore event texts
+		self.snipeIgnoreEvtText = False
+		self.snipeIgnoreEvtText2 = False
+		self.farmIgnoreEvtText = False
+
+		# snipe timer variables
+		self.villageListStorage1 = []
+		self.villageListStorage2 = []
+
+	# when go is clicked
+	def snipeUpdateSearch(self,event):
+		if self.snipeIgnoreEvtText:
+			self.snipeIgnoreEvtText = False
+			return
+		currentText = event.GetString()
+		if currentText != "" and len(currentText) >= 4:
+			found = False
+			for choice in self.helper.playersCol[1]:
+				lowerChoice = choice.lower()
+				if lowerChoice.startswith(currentText.lower()):
+					# Set the search prediction
+					self.snipeIgnoreEvtText = True
+					self.snipeSearch.SetValue(choice)
+					self.snipeSearch.SetInsertionPoint(len(currentText))
+					self.snipeSearch.SetSelection(len(currentText), len(choice))
+
+					# Set the tribe abbreviation
+					self.snipeTribe.SetValue(self.helper.findUserInfo("tribeFromUser",choice))
+
+					# Find Villages
+					userID = self.helper.findUserInfo("idFromUser", currentText)
+					villages = self.helper.findVillage(userID)
+					self.villageListStorage1 = self.helper.rowToVillage(villages)
+					queryVillages = []
+					for i in range(0, len(self.villageListStorage1)):
+						queryVillages.append(self.villageListStorage1[i][2])
+					self.snipeDefendingVillage.SetItems(queryVillages)
+
+					found = True
+					break
+			if not found:
+				event.Skip()
+		else:
+			event.Skip()
+
+	def snipeSearchClear(self, event):
+		self.snipeSearch.Clear()
+		self.snipeTribe.Clear()
+		self.snipeDefendingVillage.SetItems([])
+		self.snipeIgnoreEvtText = True
+
+	# when go is clicked
+	def snipeUpdateSearch2(self,event):
+		if self.snipeIgnoreEvtText2:
+			self.snipeIgnoreEvtText2 = False
+			return
+		currentText = event.GetString()
+		if currentText != "" and len(currentText) >= 4:
+			found = False
+			for choice in self.helper.playersCol[1]:
+				lowerChoice = choice.lower()
+				if lowerChoice.startswith(currentText.lower()):
+					# Set the search prediction
+					self.snipeIgnoreEvtText2 = True
+					self.snipeSearch2.SetValue(choice)
+					self.snipeSearch2.SetInsertionPoint(len(currentText))
+					self.snipeSearch2.SetSelection(len(currentText), len(choice))
+
+					# Set the tribe abbreviation
+					self.snipeTribe2.SetValue(self.helper.findUserInfo("tribeFromUser",choice))
+
+					# Find Villages
+					userID = self.helper.findUserInfo("idFromUser", currentText)
+					villages = self.helper.findVillage(userID)
+					self.villageListStorage2 = self.helper.rowToVillage(villages)
+					queryVillages = []
+					for i in range(0, len(self.villageListStorage2)):
+						queryVillages.append(self.villageListStorage2[i][2])
+					self.snipeAttackingVillage.SetItems(queryVillages)
+
+					found = True
+					break
+			if not found:
+				event.Skip()
+		else:
+			event.Skip()
+
+	def snipeSearchClear2(self, event):
+		self.snipeSearch2.Clear()
+		self.snipeTribe2.Clear()
+		self.snipeAttackingVillage.SetItems([])
+		self.snipeIgnoreEvtText2 = True
+
+	def attackTimerGoPress(self, event):
+		Thread(target = self.attackTimerThread).start()
+
+	def attackTimerThread(self):
+		target = self.villageListStorage1[self.snipeDefendingVillage.GetSelection()][1]
+		sendLocations = self.snipeAttackingVillage.GetSelections()
+		sendLocationCoordinates = []
+		for i in sendLocations:
+			sendLocationCoordinates.append(self.villageListStorage2[i])
+		string = self.helper.getSnipeString2(target, self.snipeArrivalTime.GetValue(), self.snipeBBcode.IsChecked(), self.snipeSort.IsChecked(), sendLocationCoordinates)
+		self.attackTimerOutput.SetValue(string)
+
+	# when go is clicked
+	def farmSearchUpdate(self,event):
+		if self.farmIgnoreEvtText:
+			self.farmIgnoreEvtText = False
+			return
+		currentText = event.GetString()
+		if currentText != "":
+			found = False
+			for choice in self.helper.tribesCol[2]:
+				if choice.startswith(currentText):
+					self.farmIgnoreEvtText = True
+					self.farmSearchAbbrev.SetValue(choice)
+					self.farmSearchAbbrev.SetInsertionPoint(len(currentText))
+					self.farmSearchAbbrev.SetSelection(len(currentText), len(choice))
+					found = True
+					break
+			if not found:
+				event.Skip()
+		else:
+			event.Skip()
+
+	def farmSearchClear(self, event):
+		self.farmSearchAbbrev.Clear()
+		self.farmIgnoreEvtText = True
 
 	# when go is clicked
 	def getList(self,event):
@@ -331,10 +520,10 @@ class twHelperFrame(twHelperGUI.mainFrame):
 		check = self.farmBBcode.IsChecked()
 
 		# print information to display before we run
-		self.farmMemberList.SetValue(str("Processing data...  this may take some time."))
+		self.farmMemberList.SetValue(str("Processing data... this may take some time."))
 
 		# get the ranking list string
-		string = self.farmRankList(self.farmTribeAbbrev.GetValue(), order = order, descending = descending, type = typ, bbcode = check)
+		string = self.farmRankList(self.farmSearchAbbrev.GetValue(), order = order, descending = descending, type = typ, bbcode = check)
 		self.farmMemberList.SetValue(string) # print the list to display
 
 	def farmRankList(self, tribeAbbrev, order = False, descending = True, bbcode = True, type = "Hauls"):
@@ -368,7 +557,7 @@ if __name__ == '__main__':
 	app = wx.App(False)
 
 	# create an object of CalcFrame
-	frame = twHelperFrame(None)
+	frame = twHelperMain(None)
 	# show the frame
 	frame.Show(True)
 	# start the applications

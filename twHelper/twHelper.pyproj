@@ -12,6 +12,7 @@
     <Name>twHelper</Name>
     <RootNamespace>twHelper</RootNamespace>
     <InterpreterId>Global|PythonCore|3.6</InterpreterId>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
