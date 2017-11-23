@@ -12,6 +12,7 @@ import traceback
 
 # self.attackArriveTime = wx.adv.TimePickerCtrl( self.m_panel2, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition, wx.DefaultSize, wx.adv.TP_DEFAULT )
 
+
 class twHelper:
 	"""Handler"""
 
@@ -163,15 +164,16 @@ class twHelper:
 			distance = self.distanceCalc(target, temp[i][1])
 			for j in range(0, len(self.speeds)):
 				timeTo = self.timeToVillage(distance, self.speeds[j])
-				timeLaunchString = self.unixToString(landTimeUnix - timeTo)
-				if bbcode:
-					unitName = str(self.speeds[j])
-					sA = timeLaunchString
-					sB = "Launch " + unitName.ljust(3) + " from [village]" + temp[i][1] + "[/village] at " + timeLaunchString
-					sendList.append([sA, sB])
+				if landTimeUnix - timeTo > time.time():
+					timeLaunchString = self.unixToString(landTimeUnix - timeTo)
+					if bbcode:
+						unitName = str(self.speeds[j].upper())
+						sA = timeLaunchString
+						sB = "Launch " + unitName.ljust(3) + " from [village]" + temp[i][1] + "[/village] at " + timeLaunchString
+						sendList.append([sA, sB])
 
-				else:
-					sendList.append("Launch " + self.speeds[j] + " from " + temp[i][1] + " at " + timeLaunchString)
+					else:
+						sendList.append("Launch " + self.speeds[j] + " from " + temp[i][1] + " at " + timeLaunchString)
 
 		outstring = ""
 		if sortList:
@@ -497,8 +499,7 @@ class twHelperMain(twHelperGUI.mainFrame):
 		attackDate = self.attackArriveDate.GetValue()
 		attackTime = self.attackArriveTime.GetValue()
 		milliseconds = self.attackArriveMilliseconds.GetValue()
-		timeString = str(attackDate.day) + "." + str(attackDate.month) + "." + str(attackDate.year) + " " + str(attackTime.hour) + ":" + str(attackTime.minute) + ":" + str(attackTime.second) + "." + str(milliseconds)
-		print(timeString)
+		timeString = str(attackDate.day) + "." + str(attackDate.month + 1) + "." + str(attackDate.year) + " " + str(attackTime.hour) + ":" + str(attackTime.minute) + ":" + str(attackTime.second) + "." + str(milliseconds)
 		# get the timing string
 		string = self.helper.getSnipeString2(target, timeString, self.snipeBBcode.IsChecked(), self.snipeSort.IsChecked(), sendLocationCoordinates)
 		self.attackTimerOutput.SetValue(string) # put the timing string in the output window
