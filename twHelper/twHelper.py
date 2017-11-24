@@ -73,9 +73,9 @@ class twHelper:
 		if order:
 			list = sorted(list, key=lambda x: float(x[1]), reverse = descending)
 		if True:
-			string = '[table]\n[**]Name[||]Rank[||]' + title + '[||]Date[/**]\n'
+			string = '[table]\n[**]Name[||]Tribe Rank[||]Global Rank[||]' + title + '[||]Date[/**]\n'
 			for i in range(0,len(list)):
-				list[i][0] = "[ally]" + list[i][0] + "[/ally]"
+				list[i][0] = "[player]" + list[i][0] + "[/player][|]" + str(i + 1)
 				string = string + "[*]" + "[|]".join(list[i]) + "\n"
 			string = string + "[/table]"
 
@@ -102,12 +102,12 @@ class twHelper:
 	
 	def findTribe(self, tribeAbbrev):
 		"""Find the userID of a username."""
-		index = [i for i, abbrev in enumerate(self.tribesCol[2]) if tribeAbbrev in abbrev]
+		index = [i for i, abbrev in enumerate(self.tribesCol[2]) if tribeAbbrev == abbrev]
 		id = self.tribesCol[0][index[0]]
 		return id
 
 	def getTribeMemberList(self, tribeID):
-		index = [i for i, id in enumerate(self.playersCol[2]) if tribeID in id]
+		index = [i for i, id in enumerate(self.playersCol[2]) if tribeID == id]
 		members = []
 		for i in range(0, len(index)):
 			members.append(self.playersCol[1][index[i]])
@@ -566,10 +566,10 @@ class twHelperMain(twHelperGUI.mainFrame):
 	def farmRankList(self, tribeAbbrev, order = False, descending = True, bbcode = True, type = "Hauls"):
 		'''Get the farm ranks of a tribe.'''
 		# reset values
-		self.plunderList = []
-		self.haulList = []
-		self.plunderListString = ''
-		self.haulListString = ''
+		self.helper.plunderList = []
+		self.helper.haulList = []
+		self.helper.plunderListString = ''
+		self.helper.haulListString = ''
 		string = ''
 
 		# get the member list
