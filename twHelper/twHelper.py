@@ -353,11 +353,12 @@ class twHelper:
 			tribes.close()
 
 
-#inherit from the MainFrame created in wxFowmBuilder and create CalcFrame
+# inherit fromt he gui class
 class twHelperMain(twHelperGUI.mainFrame):
 	#constructor
 	def __init__(self,parent):
 	#initialize parent class
+		self.locale = wx.Locale(wx.LANGUAGE_ENGLISH) # set the system language so that we don't get all sorts of errors
 		twHelperGUI.mainFrame.__init__(self,parent)
 		self.helper = twHelper()
 		self.plunderList = []
