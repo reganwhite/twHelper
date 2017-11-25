@@ -85,14 +85,14 @@ class mainFrame ( wx.Frame ):
 		self.inDayPanel.Layout()
 		wSizer2.Fit( self.inDayPanel )
 		self.m_notebook1.AddPage( self.inDayPanel, u"In A Day", False )
-		self.m_panel2 = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.attackPanel = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer9 = wx.BoxSizer( wx.VERTICAL )
 		
 		bSizer5 = wx.BoxSizer( wx.HORIZONTAL )
 		
 		wSizer8 = wx.WrapSizer( wx.HORIZONTAL )
 		
-		defendingPlayer = wx.StaticBoxSizer( wx.StaticBox( self.m_panel2, wx.ID_ANY, u"Defending Player" ), wx.VERTICAL )
+		defendingPlayer = wx.StaticBoxSizer( wx.StaticBox( self.attackPanel, wx.ID_ANY, u"Defending Player" ), wx.VERTICAL )
 		
 		bSizer6 = wx.BoxSizer( wx.HORIZONTAL )
 		
@@ -125,7 +125,7 @@ class mainFrame ( wx.Frame ):
 		
 		wSizer8.Add( defendingPlayer, 1, wx.EXPAND|wx.TOP, 5 )
 		
-		attackingPlayer = wx.StaticBoxSizer( wx.StaticBox( self.m_panel2, wx.ID_ANY, u"Attacking Player" ), wx.VERTICAL )
+		attackingPlayer = wx.StaticBoxSizer( wx.StaticBox( self.attackPanel, wx.ID_ANY, u"Attacking Player" ), wx.VERTICAL )
 		
 		bSizer4 = wx.BoxSizer( wx.HORIZONTAL )
 		
@@ -164,7 +164,7 @@ class mainFrame ( wx.Frame ):
 		wSizer9 = wx.WrapSizer( wx.VERTICAL )
 		
 		wSizer9.SetMinSize( wx.Size( -1,300 ) ) 
-		speeds = wx.StaticBoxSizer( wx.StaticBox( self.m_panel2, wx.ID_ANY, u"Speeds" ), wx.VERTICAL )
+		speeds = wx.StaticBoxSizer( wx.StaticBox( self.attackPanel, wx.ID_ANY, u"Speeds" ), wx.VERTICAL )
 		
 		self.snipeSpeedNob = wx.CheckBox( speeds.GetStaticBox(), wx.ID_ANY, u"Nob", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.snipeSpeedNob.SetValue(True) 
@@ -201,11 +201,11 @@ class mainFrame ( wx.Frame ):
 		
 		wSizer9.Add( speeds, 1, wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, 5 )
 		
-		self.snipeSort = wx.CheckBox( self.m_panel2, wx.ID_ANY, u"Sort", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.snipeSort = wx.CheckBox( self.attackPanel, wx.ID_ANY, u"Sort", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.snipeSort.SetValue(True) 
 		wSizer9.Add( self.snipeSort, 0, wx.ALL, 5 )
 		
-		self.snipeBBcode = wx.CheckBox( self.m_panel2, wx.ID_ANY, u"BBcode", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.snipeBBcode = wx.CheckBox( self.attackPanel, wx.ID_ANY, u"BBcode", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.snipeBBcode.SetValue(True) 
 		wSizer9.Add( self.snipeBBcode, 0, wx.ALL, 5 )
 		
@@ -217,42 +217,86 @@ class mainFrame ( wx.Frame ):
 		
 		wSizer81 = wx.WrapSizer( wx.HORIZONTAL )
 		
-		self.m_staticText5 = wx.StaticText( self.m_panel2, wx.ID_ANY, u"Time:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText5 = wx.StaticText( self.attackPanel, wx.ID_ANY, u"Time:", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText5.Wrap( -1 )
 		wSizer81.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
-		self.attackArriveDate = wx.adv.DatePickerCtrl( self.m_panel2, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition, wx.DefaultSize, wx.adv.DP_DEFAULT|wx.adv.DP_SPIN )
+		self.attackArriveDate = wx.adv.DatePickerCtrl( self.attackPanel, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition, wx.DefaultSize, wx.adv.DP_DEFAULT|wx.adv.DP_SPIN )
 		wSizer81.Add( self.attackArriveDate, 0, wx.ALL, 5 )
 		
-		self.attackArriveTime = wx.adv.TimePickerCtrl( self.m_panel2, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition, wx.DefaultSize, wx.adv.TP_DEFAULT )
+		self.attackArriveTime = wx.adv.TimePickerCtrl( self.attackPanel, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition, wx.DefaultSize, wx.adv.TP_DEFAULT )
 		self.attackArriveTime.SetMinSize( wx.Size( 85,-1 ) )
 		
 		wSizer81.Add( self.attackArriveTime, 0, wx.ALL, 5 )
 		
-		self.attackArriveMilliseconds = wx.SpinCtrl( self.m_panel2, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 50,-1 ), wx.SP_ARROW_KEYS, 0, 999, 0 )
+		self.attackArriveMilliseconds = wx.SpinCtrl( self.attackPanel, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 50,-1 ), wx.SP_ARROW_KEYS, 0, 999, 0 )
 		wSizer81.Add( self.attackArriveMilliseconds, 0, wx.ALL, 5 )
 		
 		
 		bSizer9.Add( wSizer81, 0, wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
-		self.attackTimerGo = wx.Button( self.m_panel2, wx.ID_ANY, u"Go!", wx.DefaultPosition, wx.Size( -1,-1 ), 0 )
+		self.attackTimerGo = wx.Button( self.attackPanel, wx.ID_ANY, u"Go!", wx.DefaultPosition, wx.Size( -1,-1 ), 0 )
 		self.attackTimerGo.SetMinSize( wx.Size( 65,-1 ) )
 		
 		bSizer9.Add( self.attackTimerGo, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
 		
 		wSizer91 = wx.WrapSizer( wx.HORIZONTAL )
 		
-		self.attackTimerOutput = wx.TextCtrl( self.m_panel2, wx.ID_ANY, u"The output will print to here.", wx.DefaultPosition, wx.Size( 300,100 ), wx.TE_DONTWRAP|wx.TE_MULTILINE|wx.TE_READONLY )
+		self.attackTimerOutput = wx.TextCtrl( self.attackPanel, wx.ID_ANY, u"The output will print to here.", wx.DefaultPosition, wx.Size( 300,100 ), wx.TE_DONTWRAP|wx.TE_MULTILINE|wx.TE_READONLY )
 		wSizer91.Add( self.attackTimerOutput, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
 		
 		
 		bSizer9.Add( wSizer91, 0, wx.ALIGN_CENTER, 5 )
 		
 		
-		self.m_panel2.SetSizer( bSizer9 )
-		self.m_panel2.Layout()
-		bSizer9.Fit( self.m_panel2 )
-		self.m_notebook1.AddPage( self.m_panel2, u"Attack Timer", True )
+		self.attackPanel.SetSizer( bSizer9 )
+		self.attackPanel.Layout()
+		bSizer9.Fit( self.attackPanel )
+		self.m_notebook1.AddPage( self.attackPanel, u"Attack Timer", False )
+		self.coordPanel = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		wSizer82 = wx.WrapSizer( wx.HORIZONTAL )
+		
+		sbSizer6 = wx.StaticBoxSizer( wx.StaticBox( self.coordPanel, wx.ID_ANY, u"Extractor" ), wx.VERTICAL )
+		
+		wSizer92 = wx.WrapSizer( wx.HORIZONTAL )
+		
+		self.coordExtractorInput = wx.TextCtrl( sbSizer6.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE )
+		self.coordExtractorInput.SetMinSize( wx.Size( 325,100 ) )
+		
+		wSizer92.Add( self.coordExtractorInput, 0, wx.ALL, 5 )
+		
+		
+		sbSizer6.Add( wSizer92, 0, 0, 5 )
+		
+		wSizer10 = wx.WrapSizer( wx.HORIZONTAL )
+		
+		self.m_staticText51 = wx.StaticText( sbSizer6.GetStaticBox(), wx.ID_ANY, u"Origin:", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText51.Wrap( -1 )
+		wSizer10.Add( self.m_staticText51, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.coordExtractorOrigin = wx.TextCtrl( sbSizer6.GetStaticBox(), wx.ID_ANY, u"000|000", wx.DefaultPosition, wx.DefaultSize, wx.TE_CENTRE )
+		self.coordExtractorOrigin.SetMaxSize( wx.Size( 75,-1 ) )
+		
+		wSizer10.Add( self.coordExtractorOrigin, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		
+		self.coordExtractorSort = wx.CheckBox( sbSizer6.GetStaticBox(), wx.ID_ANY, u"Sort?", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.coordExtractorSort.SetValue(True) 
+		wSizer10.Add( self.coordExtractorSort, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		self.coordExtractorButton = wx.Button( sbSizer6.GetStaticBox(), wx.ID_ANY, u"Get Coords!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		wSizer10.Add( self.coordExtractorButton, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		sbSizer6.Add( wSizer10, 0, wx.ALIGN_CENTER_HORIZONTAL, 5 )
+		
+		
+		wSizer82.Add( sbSizer6, 0, wx.EXPAND|wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+		
+		
+		self.coordPanel.SetSizer( wSizer82 )
+		self.coordPanel.Layout()
+		wSizer82.Fit( self.coordPanel )
+		self.m_notebook1.AddPage( self.coordPanel, u"Coordinate Things", True )
 		self.configPanel = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		wSizer41 = wx.WrapSizer( wx.HORIZONTAL )
 		
@@ -286,6 +330,7 @@ class mainFrame ( wx.Frame ):
 		self.snipeSearch2.Bind( wx.EVT_TEXT, self.snipeUpdateSearch2 )
 		self.snipeAttackingVillage.Bind( wx.EVT_LISTBOX_DCLICK, self.snipeDefendingVillageSelect )
 		self.attackTimerGo.Bind( wx.EVT_BUTTON, self.attackTimerGoPress )
+		self.coordExtractorButton.Bind( wx.EVT_BUTTON, self.coordExtractorGo )
 	
 	def __del__( self ):
 		pass
@@ -318,6 +363,9 @@ class mainFrame ( wx.Frame ):
 	
 	
 	def attackTimerGoPress( self, event ):
+		event.Skip()
+	
+	def coordExtractorGo( self, event ):
 		event.Skip()
 	
 

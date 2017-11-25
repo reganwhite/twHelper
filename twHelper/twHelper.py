@@ -10,7 +10,7 @@ import wx.xrc
 import twHelperGUI
 import traceback
 
-# self.attackArriveTime = wx.adv.TimePickerCtrl( self.m_panel2, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition, wx.DefaultSize, wx.adv.TP_DEFAULT )
+# self.attackArriveTime = wx.adv.TimePickerCtrl( self.attackPanel, wx.ID_ANY, wx.DefaultDateTime, wx.DefaultPosition, wx.DefaultSize, wx.adv.TP_DEFAULT )
 
 
 class twHelper:
@@ -64,128 +64,14 @@ class twHelper:
 
 		self.getWorldInfo()
 		self.loadWorldData()
-
+		
 		#kappa = self.farmRankList("~A~")
 
 		#self.getSnipeString("359|559", "spideysenses", "13.11.2017 18:00:00.473", True, True)
 
-	def farmRankProcessList(self, list, order = False, descending = True, bbcode = True, title = "ERROR"):
-		if order:
-			list = sorted(list, key=lambda x: float(x[1]), reverse = descending)
-		if True:
-			string = '[table]\n[**]Name[||]Tribe Rank[||]Global Rank[||]' + title + '[||]Date[/**]\n'
-			for i in range(0,len(list)):
-				list[i][0] = "[player]" + list[i][0] + "[/player][|]" + str(i + 1)
-				string = string + "[*]" + "[|]".join(list[i]) + "\n"
-			string = string + "[/table]"
-
-		return string
-
-
-	def getInDayInfo(self, name, type):
-		if type == "Plunders":
-			# get loot_vil data
-			temp = requests.get("https://" + self.worldName + ".tribalwars.net/guest.php?screen=ranking&mode=in_a_day&type=loot_vil&name=" + name)
-			text = temp.text.replace('<span class="grey">.</span>',"")
-			list = re.findall('lit-item\">(.*)</td>', text)
-			self.plunderList.append([name] + list)
-		else:
-			# get loot_res data
-			temp = requests.get("https://" + self.worldName + ".tribalwars.net/guest.php?screen=ranking&mode=in_a_day&type=loot_res&name=" + name)
-			text = temp.text.replace('<span class="grey">.</span>',"")
-			list = re.findall('lit-item\">(.*)</td>', text)
-			self.haulList.append([name] + list)
-
-	def getTribeMembers(self, tribeAbbrev):
-		id = self.findTribe(tribeAbbrev)
-		return self.getTribeMemberList(id)
-	
-	def findTribe(self, tribeAbbrev):
-		"""Find the userID of a username."""
-		index = [i for i, abbrev in enumerate(self.tribesCol[2]) if tribeAbbrev == abbrev]
-		id = self.tribesCol[0][index[0]]
-		return id
-
-	def getTribeMemberList(self, tribeID):
-		index = [i for i, id in enumerate(self.playersCol[2]) if tribeID == id]
-		members = []
-		for i in range(0, len(index)):
-			members.append(self.playersCol[1][index[i]])
-		return members
-
-
-	def getSnipeString(self, target, player, landTime, bbcode, sortList):
-		userID = self.findUserID(player)
-		villages = self.findVillage(userID)
-		temp = self.rowToVillage(villages)
-
-		landTimeUnix = self.stringToUnix(landTime)
-		print(landTimeUnix)
-		if bbcode:
-			print("[ally]" + player + "[/ally] hitting [village]" + target + "[/village] at " + landTime)
-		else:
-			print(player + " hitting " + target + " at " + landTime)
-
-		sendList = []
-
-		for i in range(0, len(temp)):
-			distance = self.distanceCalc(target, temp[i][1])
-			for j in range(0, len(self.speeds)):
-				timeTo = self.timeToVillage(distance, self.speeds[j])
-				timeLaunchString = self.unixToString(landTimeUnix - timeTo)
-				if bbcode:
-					unitName = str(self.speeds[j])
-					sA = timeLaunchString
-					sB = "Launch " + unitName.ljust(3) + " from [village]" + temp[i][1] + "[/village] at " + timeLaunchString
-					sendList.append([sA, sB])
-
-				else:
-					sendList.append("Launch " + self.speeds[j] + " from " + temp[i][1] + " at " + timeLaunchString)
-
-		if sortList:
-			sendListSorted = sorted(sendList, key=lambda x: x[0])
-			for i in range(0,len(sendListSorted)):
-				print(sendListSorted[i][1])
-		else:
-			for i in range(0,len(sendList)):
-				print(sendListSorted[i][1])
-
-	def getSnipeString2(self, target, landTime, bbcode, sortList, temp):
-		landTimeUnix = self.stringToUnix(landTime)
-		print(landTimeUnix)
-		#if bbcode:
-		#	print("[ally]" + player + "[/ally] hitting [village]" + target + "[/village] at " + landTime)
-		#else:
-		#	print(player + " hitting " + target + " at " + landTime)
-
-		sendList = []
-
-		for i in range(0, len(temp)):
-			distance = self.distanceCalc(target, temp[i][1])
-			for j in range(0, len(self.speeds)):
-				timeTo = self.timeToVillage(distance, self.speeds[j])
-				if landTimeUnix - timeTo > time.time():
-					timeLaunchString = self.unixToString(landTimeUnix - timeTo)
-					if bbcode:
-						unitName = str(self.speeds[j].upper())
-						sA = timeLaunchString
-						sB = "Launch " + unitName.ljust(3) + " from [village]" + temp[i][1] + "[/village] at " + timeLaunchString
-						sendList.append([sA, sB])
-
-					else:
-						sendList.append("Launch " + self.speeds[j] + " from " + temp[i][1] + " at " + timeLaunchString)
-
-		outstring = ""
-		if sortList:
-			sendListSorted = sorted(sendList, key=lambda x: x[0])
-			for i in range(0,len(sendListSorted)):
-				outstring = outstring + sendListSorted[i][1] + "\n"
-		else:
-			for i in range(0,len(sendList)):
-				outstring = outstring + sendList[i][1] + "\n"
-
-		return outstring
-
+# -------------------------------------------------------------------------------------------
+#			General Use Functions
+# -------------------------------------------------------------------------------------------
 
 	def rowToVillage(self, villages):
 		"""Take a list of village parameters and give us back some more important things"""
@@ -261,7 +147,7 @@ class twHelper:
 
 	def searchUserID(self, username):
 		"""Find the userID of a username."""
-		index = [i for i, names in enumerate(self.playersCol[1]) if username in names]
+		index = [i for i, names in enumerate(self.playersCol[1]) if username.lower() == names.lower()]
 		response = []
 		for i in range(0,len(index)):
 			response.append(self.playersCol[1][index[i]])
@@ -272,6 +158,159 @@ class twHelper:
 		"""Find the userID of a username."""
 		index = [i for i, ids in enumerate(self.villagesCol[4]) if userID in ids]
 		return index
+
+# -------------------------------------------------------------------------------------------
+#			Coordinate Generator Functions
+# -------------------------------------------------------------------------------------------
+	def parseCoordinateList(self,userInput):
+		'''Parses a given string and extracts coordinates.'''
+		# get all of the village coordinates from the input
+		list = re.findall('[0-9][0-9][0-9]\|[0-9][0-9][0-9]',userInput)
+
+		# remove any duplicate villages
+		listParsed = []
+		for i in list:
+			if i not in listParsed:
+				listParsed.append(i)
+
+		return listParsed
+
+	def sortVillagesByDistance(self, origin, villages, sort = True):
+		villagesWithDistance = []
+		villagesOutput = []
+		for i in villages: # for each village, append the distance to it
+			villagesWithDistance.append([self.distanceCalc(origin, i), i])
+		if sort: # sort by the distance
+			villagesWithDistance = sorted(villagesWithDistance, key=lambda x: float(x[0]))
+		for i in villagesWithDistance: # remove the distance and prepare for output
+			villagesOutput.append(i[1])
+
+		return villagesOutput
+
+# -------------------------------------------------------------------------------------------
+#			Farm List Functions
+# -------------------------------------------------------------------------------------------
+	def farmRankProcessList(self, list, order = False, descending = True, bbcode = True, title = "ERROR"):
+		if order:
+			list = sorted(list, key=lambda x: float(x[1]), reverse = descending)
+		if True:
+			string = '[table]\n[**]Name[||]Tribe Rank[||]Global Rank[||]' + title + '[||]Date[/**]\n'
+			for i in range(0,len(list)):
+				list[i][0] = "[player]" + list[i][0] + "[/player][|]" + str(i + 1)
+				string = string + "[*]" + "[|]".join(list[i]) + "\n"
+			string = string + "[/table]"
+
+		return string
+
+	def getInDayInfo(self, name, type):
+		if type == "Plunders":
+			# get loot_vil data
+			temp = requests.get("https://" + self.worldName + ".tribalwars.net/guest.php?screen=ranking&mode=in_a_day&type=loot_vil&name=" + name)
+			text = temp.text.replace('<span class="grey">.</span>',"")
+			list = re.findall('lit-item\">(.*)</td>', text)
+			self.plunderList.append([name] + list)
+		else:
+			# get loot_res data
+			temp = requests.get("https://" + self.worldName + ".tribalwars.net/guest.php?screen=ranking&mode=in_a_day&type=loot_res&name=" + name)
+			text = temp.text.replace('<span class="grey">.</span>',"")
+			list = re.findall('lit-item\">(.*)</td>', text)
+			self.haulList.append([name] + list)
+
+	def getTribeMembers(self, tribeAbbrev):
+		id = self.findTribe(tribeAbbrev)
+		return self.getTribeMemberList(id)
+	
+	def findTribe(self, tribeAbbrev):
+		"""Find the userID of a username."""
+		index = [i for i, abbrev in enumerate(self.tribesCol[2]) if tribeAbbrev == abbrev]
+		id = self.tribesCol[0][index[0]]
+		return id
+
+	def getTribeMemberList(self, tribeID):
+		index = [i for i, id in enumerate(self.playersCol[2]) if tribeID == id]
+		members = []
+		for i in range(0, len(index)):
+			members.append(self.playersCol[1][index[i]])
+		return members
+
+# -------------------------------------------------------------------------------------------
+#			Attack Timer Functions
+# -------------------------------------------------------------------------------------------
+	def getSnipeString(self, target, player, landTime, bbcode, sortList):
+		userID = self.findUserID(player)
+		villages = self.findVillage(userID)
+		temp = self.rowToVillage(villages)
+
+		landTimeUnix = self.stringToUnix(landTime)
+		print(landTimeUnix)
+		if bbcode:
+			print("[ally]" + player + "[/ally] hitting [village]" + target + "[/village] at " + landTime)
+		else:
+			print(player + " hitting " + target + " at " + landTime)
+
+		sendList = []
+
+		for i in range(0, len(temp)):
+			distance = self.distanceCalc(target, temp[i][1])
+			for j in range(0, len(self.speeds)):
+				timeTo = self.timeToVillage(distance, self.speeds[j])
+				timeLaunchString = self.unixToString(landTimeUnix - timeTo)
+				if bbcode:
+					unitName = str(self.speeds[j])
+					sA = timeLaunchString
+					sB = "Launch " + unitName.ljust(3) + " from [village]" + temp[i][1] + "[/village] at " + timeLaunchString
+					sendList.append([sA, sB])
+
+				else:
+					sendList.append("Launch " + self.speeds[j] + " from " + temp[i][1] + " at " + timeLaunchString)
+
+		if sortList:
+			sendListSorted = sorted(sendList, key=lambda x: x[0])
+			for i in range(0,len(sendListSorted)):
+				print(sendListSorted[i][1])
+		else:
+			for i in range(0,len(sendList)):
+				print(sendListSorted[i][1])
+
+	def getSnipeString2(self, target, landTime, bbcode, sortList, temp):
+		landTimeUnix = self.stringToUnix(landTime)
+		print(landTimeUnix)
+		#if bbcode:
+		#	print("[ally]" + player + "[/ally] hitting [village]" + target + "[/village] at " + landTime)
+		#else:
+		#	print(player + " hitting " + target + " at " + landTime)
+
+		sendList = []
+
+		for i in range(0, len(temp)):
+			distance = self.distanceCalc(target, temp[i][1])
+			for j in range(0, len(self.speeds)):
+				timeTo = self.timeToVillage(distance, self.speeds[j])
+				if landTimeUnix - timeTo > time.time():
+					timeLaunchString = self.unixToString(landTimeUnix - timeTo)
+					if bbcode:
+						unitName = str(self.speeds[j].upper())
+						sA = timeLaunchString
+						sB = "Launch " + unitName.ljust(3) + " from [village]" + temp[i][1] + "[/village] at " + timeLaunchString
+						sendList.append([sA, sB])
+
+					else:
+						sendList.append("Launch " + self.speeds[j] + " from " + temp[i][1] + " at " + timeLaunchString)
+
+		outstring = ""
+		if sortList:
+			sendListSorted = sorted(sendList, key=lambda x: x[0])
+			for i in range(0,len(sendListSorted)):
+				outstring = outstring + sendListSorted[i][1] + "\n"
+		else:
+			for i in range(0,len(sendList)):
+				outstring = outstring + sendList[i][1] + "\n"
+
+		return outstring
+
+# -------------------------------------------------------------------------------------------
+#			Data Initialisation Functions
+# -------------------------------------------------------------------------------------------
 
 	def loadWorldData(self):
 		"""Loads the world data into lists of strings in RAM."""
@@ -360,6 +399,7 @@ class twHelperMain(twHelperGUI.mainFrame):
 	#initialize parent class
 		self.locale = wx.Locale(wx.LANGUAGE_ENGLISH) # set the system language so that we don't get all sorts of errors
 		twHelperGUI.mainFrame.__init__(self,parent)
+
 		self.helper = twHelper()
 		self.plunderList = []
 		self.haulList = []
@@ -589,6 +629,23 @@ class twHelperMain(twHelperGUI.mainFrame):
 			string = self.helper.farmRankProcessList(self.helper.haulList, order = order, descending = descending, bbcode = bbcode, title = "Total Haul")
 
 		return string
+
+	def coordExtractorGo(self, event):
+		Thread(target = self.coordExtractorThread).start()
+
+	def coordExtractorThread(self):
+		villages = self.helper.parseCoordinateList(self.coordExtractorInput.GetValue())
+
+		sort = self.coordExtractorSort.IsChecked()
+		origin = self.coordExtractorOrigin.GetValue()
+		if origin == "000|000":
+			sort = False
+
+		output = self.helper.sortVillagesByDistance(origin,villages,sort)
+		outputString = " ".join(output)
+
+		self.coordExtractorInput.SetValue(outputString)
+
 
 if __name__ == '__main__':
 	# initialize app
